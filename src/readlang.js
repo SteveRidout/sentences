@@ -127,7 +127,9 @@
 				strength: strength || 1
 			},
 			success: function () {
-				callback();
+				if (callback) {
+					callback();
+				}
 			}
 		});
 	};

@@ -11,7 +11,6 @@
 
 		<script src="./external/underscore.min.js"></script>
 		<script src="./external/async.js"></script>
-		<script src="./external/modalDialog.js"></script>
 
 		<script src="./src/readlang.js"></script>
 		<script src="./src/app.js"></script>
@@ -19,8 +18,10 @@
 		<link rel="stylesheet" type="text/css" href="./css/style.css" />
 	</head>
 	<body>
-		<div class=overlayInput>
-			Type one of the missing words and press Enter
+		<div class=mainContainer></div>
+		<div class=wholeScreenOverlay></div>
+		<div class=inputContainer>
+			<p>Type a missing word or phrase and press Enter</p>
 			<input type="text" class="textInput"></input>
 		</div>
 	</body>
