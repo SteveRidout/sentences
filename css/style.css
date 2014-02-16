@@ -15,11 +15,16 @@ body {
 	font-family: Helvetica, sans-serif;
 }
 
-span.frag {
+.frag {
+	position: relative;
+	vertical-align: top;
+	clear: both;
+}
+.frag .context {
 	display: block;
 	color: #888;
 }
-span.frag.correct {
+.frag.correct .context {
 	display: block;
 	color: #fff;
 	text-shadow: 0 0 15px #ffa;
@@ -28,6 +33,16 @@ span[data-l] {
 	color: rgb(0,0,0);
 	font-weight: bold;
 	border-bottom: 1px solid #555;
+}
+
+.translation {
+	color: #333;
+	font-size: 28px;
+	max-width: 23%;
+
+	position: absolute;
+	top: 0;
+	right: 2%;
 }
 
 .inputContainer {
@@ -81,3 +96,12 @@ span[data-l] {
 	display: none;
 }
 
+.info {
+	position: fixed;
+	font-size: 24px;
+	top: 10px;
+	left: 10px;
+}
+.info .countdown {
+	color: #666;
+}

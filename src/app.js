@@ -18,15 +18,24 @@ $(document).ready(function () {
 		letterIndex,
 		letters,
 		fragmentsByWord,
-		easiness;
+		easiness,
+
+		level = 1,
+		countdown,
+	
+		WORDS_PER_SCREEN = 2;
 
 	var fetchWords = function (numberOfWords) {
 		fragments = [],
 		letterIndex = 0,
 		letters = [],
 		fragmentsByWord = {};
+		countdown = 60 * 1000;
 
+		$('.mainContainer').empty();
 		$('.mainContainer').hide();
+
+		$('.level').text(level);
 
 		readlang.fetchWords(numberOfWords, function (data) {
 			userWords = data;
@@ -39,41 +48,52 @@ $(document).ready(function () {
 			}
 
 			_.each(userWords, function (userWord) {
-				if (userWord.contexts && userWord.contexts.length > 0) {
-					var context = userWord.contexts[
-						Math.floor(Math.random() * userWord.contexts.length)];
-					var frag = {
-							userWord: userWord,
-							$el: $('<span class="frag">').html(
-								context.text.replace(new RegExp(userWord.word.toLowerCase(), 'i'),
-									_.map(userWord.word, function (letter) {
-										letterIndex++;
-										return '<span data-l="' + letterIndex + '">' +
-											letter + '</span>';
-									}).join(''))),
-							opacity: 0,
-							opacityVel: 0.04
-						};
-
-					var fontFamilies = [
-							"Times New Roman",
-							"Georgia",
-							"Helvetica",
-							"Open Sans",
-							"Courier"
-						];
-
-					frag.$el.css({
-						'margin-left': 5 + Math.random() * 35 + "%",
-						'margin-right': 5 + Math.random() * 35 + "%",
-						'margin-top': 10 + Math.random() * 10 + "px",
-						'font-size': 15 + Math.round(Math.random() * 8) + "px",
-						'font-family': fontFamilies[Math.round(5 * Math.random())]
-					});
-					fragments.push(frag);
-					fragmentsByWord[userWord.word.toLowerCase()] = frag;
-					$('.mainContainer').append(frag.$el);
+				if (fragmentsByWord[userWord.word.toLowerCase()]) {
+					return;
 				}
+
+				var context;
+				if (userWord.contexts && userWord.contexts.length > 0) {
+					context = userWord.contexts[
+						Math.floor(Math.random() * userWord.contexts.length)];
+				} else {
+					context = {text: userWord.word};
+				}
+
+				var frag = {
+						userWord: userWord,
+						$el: $('<div class="frag">').html('</span><span class="translation">' +
+							userWord.translation + '</span>' + '<span class="context">' +
+							context.text.replace(new RegExp(userWord.word.toLowerCase(), 'i'),
+								_.map(userWord.word, function (letter) {
+									letterIndex++;
+									return '<span data-l="' + letterIndex + '">' +
+										letter + '</span>';
+								}).join(''))),
+						opacity: 0,
+						opacityVel: 0.04
+					};
+
+				var fontFamilies = [
+						"Times New Roman",
+						"Georgia",
+						"Helvetica",
+						"Open Sans",
+						"Courier"
+					];
+
+				fragments.push(frag);
+				$('.mainContainer').append(frag.$el);
+				frag.$el.css({
+					'margin-top': 20 + Math.random() * 15 + "px",
+				});
+				frag.$el.find('.context').css({
+					'margin-left': 5 + Math.random() * 35 + "%",
+					'margin-right': 27 + Math.random() * 13 + "%",
+					'font-size': 15 + Math.round(Math.random() * 8) + "px",
+					'font-family': fontFamilies[Math.round(5 * Math.random())]
+				});
+				fragmentsByWord[userWord.word.toLowerCase()] = frag;
 			});
 			letters = $('[data-l]');
 			$('.mainContainer').fadeIn(4000);
@@ -96,9 +116,15 @@ $(document).ready(function () {
 				});
 				fragment.$el.addClass('correct').fadeOut(4000);
 				delete fragmentsByWord[input];
+
+				console.log('letters: ', letters.length);
+				letters = letters.not(fragment.$el.find('[data-l]'));
+				console.log('letters: ', letters.length);
+				
 				if (_.keys(fragmentsByWord).length === 0) {
 					setTimeout(function () {
-						fetchWords(10);
+						level++;
+						fetchWords(WORDS_PER_SCREEN + level);
 					}, 3000);
 				}
 				readlang.recallWord(fragment.userWord._id, 4, 0.3);
@@ -114,21 +140,28 @@ $(document).ready(function () {
 	readlang.user(function (data) {
 		user = data;
 
-		fetchWords(10);
+		fetchWords(WORDS_PER_SCREEN + level);
 
 		setInterval(tick, TICK_PERIOD);
 	});
 
 	var luminosityMin = function (easiness) {
-		return -2 + easiness * 1.5;
+		return -1.5 + easiness * 1.2;
 	};
 
 	var luminosityMax = function (easiness) {
-		return 0.7 + easiness * 0.3;
+		return 0.8 + easiness * 0.2;
 	};
 
 	var uniformDistribution = function (from, to) {
 		return from + (to - from) * Math.random();
+	};
+
+	var gameOver = function () {
+		setTimeout(function () {
+			level = 1;
+			fetchWords(WORDS_PER_SCREEN + level);
+		}, 1000);
 	};
 
 	var tick = function () {
@@ -136,10 +169,19 @@ $(document).ready(function () {
 			return;
 		}
 
-		// take 2 min to reach higher easiness of 1
-		easiness = Math.min(1, easiness + 1 / (2 * 60 * 1000 / TICK_PERIOD));
+		countdown -= TICK_PERIOD;
 
-		console.log('lum from %s to %s', luminosityMin(easiness), luminosityMax(easiness));
+		if (countdown % 1000 === 0) {
+			var seconds = countdown / 1000;
+			$('.countdown').text(seconds);
+		}
+
+		if (countdown <= 0) {
+			gameOver();
+		}
+
+		// take 2 min to reach higher easiness of 1
+		easiness = Math.min(1, easiness + 1 / (60 * 1000 / TICK_PERIOD));
 
 		for (var i=0; i<2; i++) {
 			letterIndex = Math.round(Math.random() * letters.length) % letters.length;
@@ -153,20 +195,5 @@ $(document).ready(function () {
 				});
 			}
 		}
-		
-		/*
-		_.each(fragments, function (frag) {
-			frag.opacityVel *= 0.5;
-			frag.opacityVel += -0.01 + Math.random() * 0.02;
-			frag.opacity += frag.opacityVel;
-
-			if (frag.opacity > 0.95) {
-				frag.opacityVel = -0.02;
-			} else if (frag.opacity < 0.05) {
-				frag.opacityVel = +0.02;
-			}
-			frag.$el.css({opacity: frag.opacity});
-		});
-		*/
 	};
 });
