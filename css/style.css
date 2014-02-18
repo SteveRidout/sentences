@@ -142,6 +142,22 @@ span[data-l] {
 	text-align: center;
 }
 
+.menuScreen .linkText {
+	position: absolute;
+	bottom: 6px;
+	left: 6px;
+	right: 6px;
+
+	color: #898;
+	text-align: center;
+}
+.menuScreen .linkText a {
+	color: #898;
+}
+.menuScreen a:hover {
+	color: #fff;
+}
+
 .start {
 	display: none;
 }

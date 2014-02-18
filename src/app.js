@@ -3,7 +3,7 @@
 $(document).ready(function () {
 	readlang.setup({
 		baseURL: "https://readlang.com",
-		APIKey: "a12345"
+		APIKey: "sentences"
 	});
 
 	var logout = function () {
@@ -23,7 +23,8 @@ $(document).ready(function () {
 		level = 1,
 		countdown,
 	
-		WORDS_PER_SCREEN = 2,
+		WORDS_PER_SCREEN = 3,
+		CHARACTERS_PER_WORD = 6, // including spaces
 		
 		gameState = "start";
 
@@ -39,8 +40,18 @@ $(document).ready(function () {
 
 		$('.level').text(level);
 
-		readlang.fetchWords(numberOfWords, function (data) {
-			userWords = data;
+		readlang.fetchWords(numberOfWords * 2, function (data) {
+			userWords = [];
+
+			var charactersLeft = numberOfWords * CHARACTERS_PER_WORD;
+
+			_.each(data, function (userWord) {
+				if (charactersLeft > 0) {
+					userWords.push(userWord);
+					charactersLeft -= userWord.word.length;
+				}
+			});
+			console.log('level: %s, actual userWords: %s', level, userWords.length);
 
 			easiness = 0;
 
@@ -51,8 +62,9 @@ $(document).ready(function () {
 			}
 
 			if (userWords.length === 0) {
-				alert('No words left to test in ' + selectedLanguageName +
-					' right now, go to readlang.com and translate some more words.');
+				$('.start.startGame').hide();
+				alert('No words found in your Readlang account for the currently selected language (' + user.currentLearningLanguage + '). Please either switch languages at http://readlang.com, or start reading some "' + user.currentLearningLanguage + '" texts so that you have words in your account to learn.');
+				return;
 			}
 
 			_.each(userWords, function (userWord) {
@@ -108,9 +120,7 @@ $(document).ready(function () {
 		});
 	};
 
-	$('.inputContainer .textInput').keyup(function (event) {
-		console.log('keyup');
-
+	$('.inputContainer .textInput').keydown(function (event) {
 		if (gameState === "startPlay") {
 			gameState = "play";
 		}
@@ -127,7 +137,7 @@ $(document).ready(function () {
 					color: '#fff',
 					'border-bottom': 'none'
 				});
-				fragment.$el.addClass('correct').fadeOut(4000);
+				fragment.$el.addClass('correct').fadeOut(2000);
 				delete fragmentsByWord[input];
 
 				console.log('letters: ', letters.length);
@@ -196,7 +206,7 @@ $(document).ready(function () {
 		$('.inputContainer').fadeOut();
 		$('.gameOverScreen').fadeIn();
 
-		$('.gameOverScreen .gameOverLevel').text(level).focus();
+		$('.gameOverScreen .gameOverLevel').text(level - 1).focus();
 		$('.gameOverScreen .startGame').focus();
 
 		level = 1;
