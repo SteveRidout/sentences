@@ -197,6 +197,7 @@ $(document).ready(function () {
 		$('.gameOverScreen').fadeIn();
 
 		$('.gameOverScreen .gameOverLevel').text(level).focus();
+		$('.gameOverScreen .startGame').focus();
 
 		level = 1;
 		fetchWords(WORDS_PER_SCREEN + level);
