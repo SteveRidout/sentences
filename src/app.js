@@ -93,7 +93,7 @@ $(document).ready(function () {
 				fragments.push(frag);
 				$('.mainContainer').append(frag.$el);
 				frag.$el.css({
-					'margin-top': 20 + Math.random() * 15 + "px",
+					'margin-top': 30 + Math.random() * 15 + "px",
 				});
 				frag.$el.find('.context').css({
 					'margin-left': 20 + Math.random() * 20 + "%",

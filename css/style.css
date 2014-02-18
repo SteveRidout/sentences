@@ -45,8 +45,11 @@ span[data-l] {
 	max-width: 23%;
 
 	position: absolute;
-	top: 0;
+	top: 50%;
 	right: 2%;
+
+	margin-top: -25px;
+	text-align: right;
 }
 
 .inputContainer {
