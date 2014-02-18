@@ -47,6 +47,7 @@ $(document).ready(function () {
 			if (gameState === "start") {
 				$('.loading').hide();
 				$('.start').fadeIn();
+				$('.start.startGame').focus();
 			}
 
 			if (userWords.length === 0) {
