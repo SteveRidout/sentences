@@ -15,6 +15,10 @@ body {
 	font-family: Helvetica, sans-serif;
 }
 
+.mainContainer {
+	margin-top: 70px;
+}
+
 .frag {
 	position: relative;
 	vertical-align: top;
@@ -59,11 +63,13 @@ span[data-l] {
 	width: 300px;
 	margin-left: -150px;
 
-	background-color: #222;
+	background-color: #242;
 	border-radius: 10px;
-	border: 1px solid #444;
+	border: 1px solid #474;
 
-	color: #999;
+	color: #9a9;
+
+	display: none;
 }
 .inputContainer input[type="text"] {
 	display: block;
@@ -82,7 +88,7 @@ span[data-l] {
 	text-align: center;
 	padding: 0;
 	margin: 0 0 10px 0;
-	font-size: 12px;
+	font-size: 20px;
 }
 
 .wholeScreenOverlay {
@@ -101,7 +107,60 @@ span[data-l] {
 	font-size: 24px;
 	top: 10px;
 	left: 10px;
+
+	display: none;
 }
 .info .countdown {
 	color: #666;
+}
+
+.menuScreen {
+	position: fixed;
+
+	box-sizing: border-box;
+
+	top: 50%;
+	left: 50%;
+
+	width: 400px;
+	height: 300px;
+
+	margin-left: -200px;
+	margin-top: -200px;
+
+	background-color: #242;
+	color: #fff;
+
+	padding: 20px;
+	border-radius: 10px;
+
+	z-index: 10;
+
+	text-align: center;
+}
+
+.start {
+	display: none;
+}
+
+.gameOverScreen {
+	display: none;
+}
+
+.menuScreen button {
+	border: 2px solid #aaa;
+
+	border-radius: 4px;
+
+	background-color: transparent;
+	color: #fff;
+
+	padding: 10px;
+	font-size: 20px;
+
+	cursor: pointer;
+}
+.menuScreen button:hover {
+	background-color: #121;
+	color: #fff;
 }

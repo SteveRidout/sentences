@@ -23,7 +23,9 @@ $(document).ready(function () {
 		level = 1,
 		countdown,
 	
-		WORDS_PER_SCREEN = 2;
+		WORDS_PER_SCREEN = 2,
+		
+		gameState = "start";
 
 	var fetchWords = function (numberOfWords) {
 		fragments = [],
@@ -41,6 +43,11 @@ $(document).ready(function () {
 			userWords = data;
 
 			easiness = 0;
+
+			if (gameState === "start") {
+				$('.loading').hide();
+				$('.start').fadeIn();
+			}
 
 			if (userWords.length === 0) {
 				alert('No words left to test in ' + selectedLanguageName +
@@ -88,9 +95,9 @@ $(document).ready(function () {
 					'margin-top': 20 + Math.random() * 15 + "px",
 				});
 				frag.$el.find('.context').css({
-					'margin-left': 5 + Math.random() * 35 + "%",
+					'margin-left': 20 + Math.random() * 20 + "%",
 					'margin-right': 27 + Math.random() * 13 + "%",
-					'font-size': 15 + Math.round(Math.random() * 8) + "px",
+					'font-size': 16 + Math.round(Math.random() * 8) + "px",
 					'font-family': fontFamilies[Math.round(5 * Math.random())]
 				});
 				fragmentsByWord[userWord.word.toLowerCase()] = frag;
@@ -102,6 +109,11 @@ $(document).ready(function () {
 
 	$('.inputContainer .textInput').keyup(function (event) {
 		console.log('keyup');
+
+		if (gameState === "startPlay") {
+			gameState = "play";
+		}
+
 		if (event.which === 13) {
 			var inputElement = $(event.target);
 			var input = inputElement.val().toLowerCase();
@@ -122,7 +134,9 @@ $(document).ready(function () {
 				console.log('letters: ', letters.length);
 				
 				if (_.keys(fragmentsByWord).length === 0) {
+					gameState = "levelComplete";
 					setTimeout(function () {
+						gameState = "play";
 						level++;
 						fetchWords(WORDS_PER_SCREEN + level);
 					}, 3000);
@@ -136,9 +150,26 @@ $(document).ready(function () {
 		}
 	}).focus();
 
+	$('.startGame').click(function () {
+		gameState = "startPlay";
+
+		$('.menuScreen').fadeOut();
+		$('.inputContainer').fadeIn();
+		$('.info').fadeIn();
+
+		$('.inputContainer .textInput').focus();
+	});
+		
+	$('.logout').click(function () {
+		readlang.logout(function () {
+			window.location.reload();
+		});
+	});
+
 	var TICK_PERIOD = 50;
 	readlang.user(function (data) {
 		user = data;
+		$('.logout').text('Logout ' + user.username);
 
 		fetchWords(WORDS_PER_SCREEN + level);
 
@@ -158,10 +189,16 @@ $(document).ready(function () {
 	};
 
 	var gameOver = function () {
-		setTimeout(function () {
-			level = 1;
-			fetchWords(WORDS_PER_SCREEN + level);
-		}, 1000);
+		gameState = "gameOver";
+
+		$('.info').fadeOut();
+		$('.inputContainer').fadeOut();
+		$('.gameOverScreen').fadeIn();
+
+		$('.gameOverScreen .gameOverLevel').text(level).focus();
+
+		level = 1;
+		fetchWords(WORDS_PER_SCREEN + level);
 	};
 
 	var tick = function () {
@@ -169,7 +206,9 @@ $(document).ready(function () {
 			return;
 		}
 
-		countdown -= TICK_PERIOD;
+		if (gameState === "play") {
+			countdown -= TICK_PERIOD;
+		}
 
 		if (countdown % 1000 === 0) {
 			var seconds = countdown / 1000;
@@ -183,17 +222,20 @@ $(document).ready(function () {
 		// take 2 min to reach higher easiness of 1
 		easiness = Math.min(1, easiness + 1 / (60 * 1000 / TICK_PERIOD));
 
-		for (var i=0; i<2; i++) {
-			letterIndex = Math.round(Math.random() * letters.length) % letters.length;
-			var luminosity = Math.round(Math.max(0,
-					uniformDistribution(luminosityMin(easiness), luminosityMax(easiness)) * 255));
-			var rgb = 'rgb(' + [luminosity, luminosity, luminosity].join(', ') + ')';
+		if (letters.length > 0) {
+			for (var i=0; i<2; i++) {
+				letterIndex = Math.round(Math.random() * letters.length) % letters.length;
+				var luminosity = Math.round(Math.max(0,
+						uniformDistribution(luminosityMin(easiness), luminosityMax(easiness)) * 255));
+				var rgb = 'rgb(' + [luminosity, luminosity, luminosity].join(', ') + ')';
 
-			if (!letters.eq(letterIndex).parent().hasClass('correct')) {
-				letters.eq(letterIndex).css({
-					color: 'rgb(' + [luminosity, luminosity, luminosity].join(', ') + ')'
-				});
+				if (!letters.eq(letterIndex).parent().hasClass('correct')) {
+					letters.eq(letterIndex).css({
+						color: 'rgb(' + [luminosity, luminosity, luminosity].join(', ') + ')'
+					});
+				}
 			}
 		}
 	};
 });
+
